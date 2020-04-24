@@ -1,3 +1,6 @@
+## 0.1.1 (April 24, 2020)
+  - added Bump version
+
 ## 0.1.0 (April 24, 2020)
   - Merge branch 'feature/bump-version' into develop
   - Bump version
