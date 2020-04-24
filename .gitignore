@@ -102,3 +102,6 @@ ENV/
 
 ehpi_action_recognition/data/*
 logs/
+
+ehpi_action_recognition/work_dir
+*.swp

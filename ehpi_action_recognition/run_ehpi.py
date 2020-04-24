@@ -1,11 +1,13 @@
 # Live Test ehpi ofp prod
+import sys
+
 from collections import deque
 from operator import itemgetter
 from typing import Dict, List, Tuple
 
 from ehpi_action_recognition.config import pose_resnet_config, pose_visualization_config, ehpi_model_state_file
 
-import cv2
+import cv2, os
 import numpy as np
 import torch.utils.data.distributed
 from nobos_commons.data_structures.dimension import ImageSize
@@ -17,6 +19,7 @@ from nobos_commons.feature_preparations.feature_vec_producers.from_skeleton_join
     get_joints_jhmdb
 from nobos_commons.feature_preparations.feature_vec_producers.from_skeleton_joints.feature_vec_producer_ehpi import \
     FeatureVecProducerEhpi
+from nobos_commons.input_providers.camera.img_dir_provider import ImgDirProvider
 from nobos_commons.input_providers.camera.webcam_provider import WebcamProvider
 from nobos_commons.tools.fps_tracker import FPSTracker
 from nobos_commons.tools.log_handler import logger
@@ -62,8 +65,11 @@ def argmax(items):
 if __name__ == '__main__':
     setup_application()
     # Settings
+    curr_dir = os.getcwd()
+    work_dir = "ehpi_action_recognition/work_dir"
+
     skeleton_type = SkeletonStickman
-    image_size = ImageSize(width=640, height=360)
+    image_size = ImageSize(width=1920, height=1080)
     heatmap_size = ImageSize(width=64, height=114)
     camera_number = 0
     fps = 30
@@ -71,10 +77,16 @@ if __name__ == '__main__':
     action_names = [Action.IDLE.name, Action.WALK.name, Action.WAVE.name]
     use_action_recognition = True
     use_quick_n_dirty = False
+    
 
     # Input Provider
-    input_provider = WebcamProvider(camera_number=0, image_size=image_size, fps=fps)
+    #input_provider = WebcamProvider(camera_number=0, image_size=image_size, fps=fps)
     # input_provider = ImgDirProvider(
+    #     "/media/disks/beta/records/real_cam/2019_03_13_Freilichtmuseum_Dashcam_01/full",
+    #     image_size=image_size, fps=fps)
+
+    input_dir = os.path.join(curr_dir, work_dir, "wave-off_frame")
+    input_provider = ImgDirProvider(input_dir, image_size=image_size,fps=fps)
     #     "/media/disks/beta/records/real_cam/2019_03_13_Freilichtmuseum_Dashcam_01/full",
     #     image_size=image_size, fps=fps)
     fps_tracker = FPSTracker(average_over_seconds=1)
@@ -145,16 +157,20 @@ if __name__ == '__main__':
 
         list(map(lambda human: draw_bb(img, human.bounding_box, actions[human.uid][0].name if human.uid in actions else "None"), image_content.humans))
 
-        img = cv2.resize(img, (1280, 720))
+        #img = cv2.resize(img, (1280, 720))
 
-        cv2.imshow('webcam', img)
+        output_dir = os.path.join(curr_dir, work_dir, "test-result")
+        cv2.imwrite(os.path.join(output_dir, "{}.png".format(str(frame_nr).zfill(5))), img)
+        #cv2.imshow('webcam', img)
         # cv2.imwrite(os.path.join(get_create_path("/media/disks/beta/records/with_visualizations/2019_03_13_Freilichtmuseum_Demo"), "{}.png".format(str(frame_nr).zfill(5))), img)
         # cv2.imwrite(os.path.join(get_create_path(
         #     "/media/disks/beta/records/with_visualizations/2019_03_13_Freilichtmuseum_Dashcam_Test_FASTMODE"),
         #                          "{}.jpg".format(str(frame_nr).zfill(5))), img)
 
+        """
         key = cv2.waitKey(1)
         if key & 0xFF == ord('q'):
             break
 
         fps_tracker.print_fps()
+        """
