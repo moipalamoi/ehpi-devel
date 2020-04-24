@@ -1,3 +1,9 @@
+## 0.2.0 (April 24, 2020)
+  - Merge branch 'feature/test-w-custom-data' into develop
+  - Testing with custom dataset
+  - Merge branch 'release-0.1' into develop
+  - Merge branch 'release-0.1' into develop
+
 ## 0.1.1 (April 24, 2020)
   - added Bump version
 
